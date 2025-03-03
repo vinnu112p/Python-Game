@@ -1,0 +1,84 @@
+import pygame
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 300, 300
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Tic-Tac-Toe")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Font
+font = pygame.font.SysFont(None, 40)
+
+# Game variables
+board = [["" for _ in range(3)] for _ in range(3)]
+player = "X"
+game_over = False
+winner = None  # Variable to store the winner
+
+# Draw the grid
+def draw_grid():
+    for i in range(1, 3):
+        pygame.draw.line(screen, BLACK, (i * 100, 0), (i * 100, HEIGHT), 2)
+        pygame.draw.line(screen, BLACK, (0, i * 100), (WIDTH, i * 100), 2)
+
+# Draw X and O
+def draw_symbols():
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == "X":
+                pygame.draw.line(screen, RED, (col * 100 + 20, row * 100 + 20), (col * 100 + 80, row * 100 + 80), 2)
+                pygame.draw.line(screen, RED, (col * 100 + 80, row * 100 + 20), (col * 100 + 20, row * 100 + 80), 2)
+            elif board[row][col] == "O":
+                pygame.draw.circle(screen, BLUE, (col * 100 + 50, row * 100 + 50), 30, 2)
+
+# Check for a win
+def check_win():
+    # Check rows and columns
+    for i in range(3):
+        if board[i][0] == board[i][1] == board[i][2] != "":
+            return board[i][0]  # Return the winning player
+        if board[0][i] == board[1][i] == board[2][i] != "":
+            return board[0][i]  # Return the winning player
+    # Check diagonals
+    if board[0][0] == board[1][1] == board[2][2] != "":
+        return board[0][0]  # Return the winning player
+    if board[0][2] == board[1][1] == board[2][0] != "":
+        return board[0][2]  # Return the winning player
+    return None  # No winner
+
+# Game loop
+running = True
+while running:
+    screen.fill(WHITE)
+    draw_grid()
+    draw_symbols()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
+            x, y = pygame.mouse.get_pos()
+            row, col = y // 100, x // 100
+            if board[row][col] == "":
+                board[row][col] = player
+                winner = check_win()  # Check for a winner
+                if winner:
+                    game_over = True
+                player = "X" if player == "O" else "O"
+
+    if game_over:
+        text = font.render(f"Player {winner} wins!", True, BLACK)
+        screen.blit(text, (50, HEIGHT // 2 - 20))
+
+    pygame.display.update()
+
+# Quit Pygame
+pygame.quit()
